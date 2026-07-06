@@ -15,5 +15,8 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "elasticsearch>=7.17.13",
+    "elasticsearch-dbapi>=0.2.13",
     "fastapi>=0.139.0",
+    "sqlalchemy>=2.0.51",
 ]
