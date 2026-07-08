@@ -1,5 +1,3 @@
-"""Pydantic schemas used for API responses."""
-
 import uuid
 from datetime import datetime
 

@@ -1,9 +1,3 @@
-"""Management commands.
-
-Usage:
-    python -m test_apr.cli import-csv path/to/posts.csv
-"""
-
 import ast
 import asyncio
 import csv
