@@ -1,11 +1,3 @@
-"""Shared fixtures for functional tests.
-
-These tests exercise the app against real Postgres/Elasticsearch instances
-(the same ones from docker-compose) - there are no mocks/fakes involved.
-Make sure both are reachable using the env vars in your `.env` before
-running `pytest`.
-"""
-
 import uuid
 from collections.abc import AsyncIterator
 from datetime import datetime
@@ -34,7 +26,8 @@ async def sample_document() -> AsyncIterator[Document]:
     document = Document(
         id=uuid.uuid4(),
         text="Уникальный тестовый текст про единорогов и радугу",
-        text_hash=uuid.uuid4().hex,  # unique dummy hash, real hashing is CLI-import specific
+        # unique dummy hash, real hashing is CLI-import specific
+        text_hash=uuid.uuid4().hex,
         rubrics=["TEST-1", "TEST-2"],
         created_date=datetime(2024, 1, 1, 12, 0, 0),
     )

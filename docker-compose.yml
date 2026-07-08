@@ -35,8 +35,6 @@ services:
     env_file:
       - .env
     environment:
-      # Force in-network hostnames regardless of what's in .env, so the
-      # stack works standalone with just `docker compose up`.
       POSTGRES_HOST: db
       ELASTICSEARCH_URL: http://elasticsearch:9200
     ports:

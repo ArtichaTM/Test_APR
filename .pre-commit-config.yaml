@@ -1,0 +1,20 @@
+repos:
+
+  - repo: local
+    hooks:
+      - id: ty-check
+        name: ty check
+        entry: uv run -m ty check  # or python -m ty check
+        language: system
+        pass_filenames: false
+      - id: ruff-check
+        name: ruff check
+        entry: uv run -m ruff check  # or python -m ruff check
+        language: system
+        pass_filenames: false
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        types: [python]

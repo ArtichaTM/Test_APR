@@ -9,7 +9,7 @@ import typer
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from test_apr.db import Document, async_session_factory, init_models
-from test_apr.search import bulk_index_documents, init_index
+from test_apr.search import bulk_index_documents, close_client, init_index
 
 cli_app = typer.Typer(help="Management commands for the document search service")
 
@@ -50,7 +50,12 @@ def _read_rows(csv_path: Path) -> list[dict]:
 
 @cli_app.command("import-csv")
 def import_csv(
-    csv_path: Path = typer.Argument(..., exists=True, readable=True, help="Path to the CSV file"),
+    csv_path: Path = typer.Argument(
+        ...,
+        exists=True,
+        readable=True,
+        help="Path to the CSV file"
+    ),
 ) -> None:
     """Import documents from a CSV file (columns: text, created_date, rubrics).
 
@@ -67,33 +72,42 @@ async def _import_csv_async(csv_path: Path) -> None:
     await init_models()
     await init_index()
 
-    rows = _read_rows(csv_path)
-    total = len(rows)
+    try:
+        rows = _read_rows(csv_path)
+        total = len(rows)
 
-    if not rows:
-        typer.echo(f"Read {total} lines, inserted 0, 0 duplicates ignored")
-        return
+        if not rows:
+            typer.echo(f"Read {total} lines, inserted 0, 0 duplicates ignored")
+            return
 
-    async with async_session_factory() as session:
-        stmt = (
-            pg_insert(Document)
-            .values(rows)
-            .on_conflict_do_nothing(index_elements=[Document.text_hash, Document.rubrics])
-            .returning(Document.id, Document.text)
+        async with async_session_factory() as session:
+            stmt = (
+                pg_insert(Document)
+                .values(rows)
+                .on_conflict_do_nothing(index_elements=[
+                    Document.text_hash, Document.rubrics
+                ])
+                .returning(Document.id, Document.text)
+            )
+            result = await session.execute(stmt)
+            inserted = result.all()
+            await session.commit()
+
+        inserted_count = len(inserted)
+        duplicates = total - inserted_count
+
+        if inserted:
+            await bulk_index_documents(
+                [{"id": str(doc_id), "text": text} for doc_id, text in inserted]
+            )
+
+        typer.echo(
+            f"Read {total} lines, "
+            f"inserted {inserted_count}, "
+            f"{duplicates} duplicates ignored"
         )
-        result = await session.execute(stmt)
-        inserted = result.all()
-        await session.commit()
-
-    inserted_count = len(inserted)
-    duplicates = total - inserted_count
-
-    if inserted:
-        await bulk_index_documents(
-            [{"id": str(doc_id), "text": text} for doc_id, text in inserted]
-        )
-
-    typer.echo(f"Read {total} lines, inserted {inserted_count}, {duplicates} duplicates ignored")
+    finally:
+        await close_client()
 
 
 if __name__ == "__main__":

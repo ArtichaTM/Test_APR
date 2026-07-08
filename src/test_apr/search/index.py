@@ -1,12 +1,11 @@
-from typing import Any
 from collections.abc import AsyncIterable
 from contextlib import suppress
+from typing import Any
 
 from elasticsearch import NotFoundError
 from elasticsearch.helpers import async_bulk
 
 from test_apr.search.client import get_client
-
 
 INDEX_NAME = 'documents'
 

@@ -1,0 +1,30 @@
+{
+  "output": {
+    "removeComments": false,
+    "removeEmptyLines": false,
+    "topFilesLength": 10,
+    "showLineNumbers": false
+  },
+  "include": [
+    "src/**/*.py",
+    "tests/**/*.py",
+    ".python-version",
+    "pyproject.toml",
+    "README.md",
+    "Dockerfile",
+    "docker-compose.yml"
+  ],
+  "ignore": {
+    "useGitignore": true,
+    "useDefaultPatterns": true,
+    "customPatterns": [
+      "**/__pycache__/**",
+      "**/*.pyc",
+      "**/.pytest_cache/**",
+      "**/.mypy_cache/**",
+      "**/.venv/**",
+      "data/**",
+      "uv.lock"
+    ]
+  }
+}

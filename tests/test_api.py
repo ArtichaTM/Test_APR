@@ -33,20 +33,29 @@ async def test_delete_missing_document_returns_404(client):
 
 
 async def test_search_finds_indexed_document(client, sample_document):
-    response = await client.get("/search", params={"q": "единорогов"})
+    response = await client.get(
+        "/search",
+        params={"q": "единорогов"}
+    )
     assert response.status_code == 200
     ids = [item["id"] for item in response.json()]
     assert str(sample_document.id) in ids
 
 
 async def test_search_no_match_returns_empty_list(client):
-    response = await client.get("/search", params={"q": "жжжнесуществующийзапрос"})
+    response = await client.get(
+        "/search",
+        params={"q": "жжжнесуществующийзапрос"}
+    )
     assert response.status_code == 200
     assert response.json() == []
 
 
 async def test_search_respects_limit(client, sample_document):
-    response = await client.get("/search", params={"q": "единорогов", "limit": 1, "offset": 0})
+    response = await client.get(
+        "/search",
+        params={"q": "единорогов", "limit": 1, "offset": 0}
+    )
     assert response.status_code == 200
     assert len(response.json()) <= 1
 

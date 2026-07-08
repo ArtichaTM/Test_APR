@@ -1,10 +1,3 @@
-"""Functional tests for the `import-csv` management command.
-
-Covers the duplicate-skipping behaviour described in the task: re-importing
-identical `text` values should not create duplicate rows, and the printed
-summary should report the counts correctly.
-"""
-
 from pathlib import Path
 
 import pytest
@@ -27,7 +20,9 @@ def _write_csv(tmp_path: Path, rows: list[tuple[str, str, str]]) -> Path:
 
 async def _cleanup(text: str) -> None:
     async with async_session_factory() as session:
-        result = await session.execute(select(Document).where(Document.text == text))
+        result = await session.execute(
+            select(Document).where(Document.text == text)
+        )
         for row in result.scalars().all():
             await session.delete(row)
         await session.commit()
@@ -49,7 +44,9 @@ async def test_import_skips_duplicate_rows_within_same_file(tmp_path, capsys):
         assert "Read 2 lines, inserted 1, 1 duplicates ignored" in out
 
         async with async_session_factory() as session:
-            result = await session.execute(select(Document).where(Document.text == text))
+            result = await session.execute(
+                select(Document).where(Document.text == text)
+            )
             assert len(result.scalars().all()) == 1
     finally:
         await _cleanup(text)
@@ -68,7 +65,9 @@ async def test_import_skips_duplicates_across_separate_runs(tmp_path, capsys):
         assert "Read 1 lines, inserted 0, 1 duplicates ignored" in out
 
         async with async_session_factory() as session:
-            result = await session.execute(select(Document).where(Document.text == text))
+            result = await session.execute(
+                select(Document).where(Document.text == text)
+            )
             assert len(result.scalars().all()) == 1
     finally:
         await _cleanup(text)
@@ -85,7 +84,9 @@ async def test_import_parses_rubrics_list(tmp_path, capsys):
         capsys.readouterr()
 
         async with async_session_factory() as session:
-            result = await session.execute(select(Document).where(Document.text == text))
+            result = await session.execute(
+                select(Document).where(Document.text == text)
+            )
             document = result.scalar_one()
             assert document.rubrics == ["VK-1", "VK-2", "VK-3"]
     finally:

@@ -1,12 +1,3 @@
-"""FastAPI application: document search service.
-
-Endpoints:
-- GET    /document/{id}  -> fetch one document from Postgres
-- DELETE /document/{id}  -> delete a document from Postgres and the search index
-- GET    /search         -> full-text search over the index, results ordered
-                            by created_date (newest first), paginated
-"""
-
 import uuid
 from contextlib import asynccontextmanager
 
@@ -17,7 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from test_apr import config
 from test_apr.db import Document, get_session, init_models
 from test_apr.schemas import DocumentOut
-from test_apr.search import close_client, delete_document as es_delete_document, init_index, search_ids
+from test_apr.search import (
+    close_client, delete_document as es_delete_document, init_index, search_ids
+)
 
 
 @asynccontextmanager
