@@ -78,7 +78,7 @@ async def _import_csv_async(csv_path: Path) -> None:
         stmt = (
             pg_insert(Document)
             .values(rows)
-            .on_conflict_do_nothing(index_elements=[Document.text_hash])
+            .on_conflict_do_nothing(index_elements=[Document.text_hash, Document.rubrics])
             .returning(Document.id, Document.text)
         )
         result = await session.execute(stmt)
