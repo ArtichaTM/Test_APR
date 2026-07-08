@@ -6,9 +6,25 @@ import httpx
 import pytest_asyncio
 
 from test_apr.app import app
-from test_apr.db import Document, async_session_factory
+from test_apr.db import Document, async_session_factory, engine
 from test_apr.search import get_client
 from test_apr.search.index import INDEX_NAME
+
+
+@pytest_asyncio.fixture(autouse=True)
+async def _dispose_engine_after_test() -> AsyncIterator[None]:
+    """Drop pooled asyncpg connections after each test.
+
+    pytest-asyncio opens a new event loop per test (function scope), but
+    `engine` is a module-level singleton whose pool caches connections tied
+    to whatever loop created them. Without disposing, the next test's loop
+    tries to reuse a connection from a closed loop and asyncpg blows up with
+    "attached to a different loop". Autouse + no dependencies means this
+    fixture is set up first and torn down last, i.e. after fixtures like
+    `sample_document` have already used the engine for their own cleanup.
+    """
+    yield
+    await engine.dispose()
 
 
 @pytest_asyncio.fixture
