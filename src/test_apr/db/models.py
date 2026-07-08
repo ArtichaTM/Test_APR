@@ -5,22 +5,13 @@ from datetime import datetime
 
 from sqlalchemy import DateTime, String, Text
 from sqlalchemy.dialects.postgresql import ARRAY, UUID
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import declarative_base, Mapped, mapped_column
 
 
-class Base(DeclarativeBase):
-    pass
+Base = declarative_base()
 
 
 class Document(Base):
-    """A single document, mirroring the `posts.csv` structure.
-
-    `text_hash` is a SHA-256 hex digest of `text`. It is not part of the
-    public API, it only backs a unique index used by the CSV import command
-    to skip duplicate rows cheaply (via `ON CONFLICT DO NOTHING`) instead of
-    doing a full-text comparison per row.
-    """
-
     __tablename__ = "documents"
 
     id: Mapped[uuid.UUID] = mapped_column(

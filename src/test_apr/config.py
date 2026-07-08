@@ -24,12 +24,11 @@ DATABASE_URL = (
 
 # --- Elasticsearch ------------------------------------------------------------
 ELASTICSEARCH_URL = os.getenv("ELASTICSEARCH_URL", "http://localhost:9200")
-ELASTICSEARCH_INDEX = os.getenv("ELASTICSEARCH_INDEX", "documents")
 
 # --- Search ---------------------------------------------------------------------
 # Default/limit for GET /search pagination.
-SEARCH_DEFAULT_LIMIT = _get_int("SEARCH_DEFAULT_LIMIT", 20)
-SEARCH_MAX_LIMIT = _get_int("SEARCH_MAX_LIMIT", 100)
+SEARCH_MAX_LIMIT = 50
+SEARCH_DEFAULT_LIMIT = 20
 
 # How many candidate ids to pull from Elasticsearch before the final
 # ordering/pagination by `created_date` is applied in Postgres. The index

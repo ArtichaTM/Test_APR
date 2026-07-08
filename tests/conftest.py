@@ -15,7 +15,8 @@ import pytest_asyncio
 
 from test_apr.app import app
 from test_apr.db import Document, async_session_factory
-from test_apr.search import INDEX_NAME, get_client
+from test_apr.search import get_client
+from test_apr.search.index import INDEX_NAME
 
 
 @pytest_asyncio.fixture
@@ -46,8 +47,8 @@ async def sample_document() -> AsyncIterator[Document]:
     await es_client.index(
         index=INDEX_NAME,
         id=str(document.id),
-        body={"text": document.text},
-        refresh=True,  # make it immediately searchable for the test
+        document={"text": document.text},
+        refresh=True,
     )
 
     yield document

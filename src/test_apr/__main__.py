@@ -1,5 +1,3 @@
-"""Entrypoint for `python -m test_apr`: runs the API server."""
-
 import uvicorn
 
 from test_apr import config

@@ -1,5 +1,3 @@
-"""Elasticsearch async client singleton."""
-
 from elasticsearch import AsyncElasticsearch
 
 from test_apr import config

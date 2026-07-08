@@ -29,8 +29,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Test APR document search service",
-    description="Simple full-text search service backed by Postgres (storage) and Elasticsearch (index).",
+    title="Test-APR document search service",
+    description="Simple full-text search service backed by PostgreS+ElasticSearch",
     lifespan=lifespan,
 )
 
@@ -58,8 +58,6 @@ async def delete_document(
     await session.delete(document)
     await session.commit()
 
-    # If the document was already missing from the index, that's still a
-    # successful delete from the caller's point of view.
     await es_delete_document(str(document_id))
 
     return {"status": "ok"}
