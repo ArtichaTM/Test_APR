@@ -8,7 +8,6 @@ COPY pyproject.toml .python-version ./
 # add `--dev` after sync to enable testing (includes dev packages for testing)
 RUN uv sync --no-install-project
 
-
 COPY README.md ./
 COPY src ./src
 # COPY tests ./tests

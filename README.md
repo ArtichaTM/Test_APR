@@ -15,6 +15,44 @@ docker compose exec app python -m test_apr.cli data/posts.csv
 
 Переменные в `.env` можно не трогать в принципе - параметры по умолчанию позволяют пользоваться сайтом "as-is"
 
+## Тесты
+Для запуска тестов нужно закомментировать строчку 7 в [dockerignore](./.dockerignore#L7):
+
+```gitignore
+.git
+.venv
+__pycache__
+*.pyc
+.env
+data/
+# tests/  <-- Эту
+.pytest_cache
+```
+
+[Добавить аргумент](./Dockerfile#L9) `--dev` к синхронизации проекта (для добавления зависимостей) и [убрать комментарий с папкой тестов](./Dockerfile#L13) в [Dockerfile](./Dockerfile):
+
+```Dockerfile
+FROM python:3.13-slim
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
+
+WORKDIR /app
+
+COPY pyproject.toml .python-version ./
+RUN uv sync --dev --no-install-project  <-- --dev здесь
+
+COPY README.md ./
+COPY src ./src
+COPY tests ./tests <- Убрать комментарий для добавления тестов в сборку
+RUN uv sync
+
+ENV PATH="/app/.venv/bin:$PATH"
+
+EXPOSE 8000
+
+CMD ["python", "-m", "test_apr"]
+```
+
 ## API
 - `GET /document/{id}` — получить документ.
 - `DELETE /document/{id}` — удалить документ.
