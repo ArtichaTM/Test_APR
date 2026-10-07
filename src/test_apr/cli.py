@@ -6,6 +6,7 @@ from datetime import datetime
 from pathlib import Path
 
 import typer
+from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from test_apr.db import Document, async_session_factory, init_models
@@ -106,6 +107,31 @@ async def _import_csv_async(csv_path: Path) -> None:
             f"inserted {inserted_count}, "
             f"{duplicates} duplicates ignored"
         )
+    finally:
+        await close_client()
+
+
+@cli_app.command("reindex")
+def reindex() -> None:
+    """Index every document stored in Postgres into Elasticsearch.
+
+    Use it to rebuild an empty or out-of-sync index, e.g. after an
+    Elasticsearch upgrade.
+    """
+    asyncio.run(_reindex_async())
+
+
+async def _reindex_async() -> None:
+    await init_models()
+    await init_index()
+
+    try:
+        async with async_session_factory() as session:
+            result = await session.stream(select(Document.id, Document.text))
+            indexed = await bulk_index_documents(
+                {"id": str(doc_id), "text": text} async for doc_id, text in result
+            )
+        typer.echo(f"Indexed {indexed} documents")
     finally:
         await close_client()
 

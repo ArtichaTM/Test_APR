@@ -1,10 +1,14 @@
+import uuid
+from datetime import datetime
 from pathlib import Path
 
 import pytest
 from sqlalchemy import select
 
-from test_apr.cli import _import_csv_async
+from test_apr.cli import _import_csv_async, _reindex_async
 from test_apr.db import Document, async_session_factory
+from test_apr.search import close_client, delete_document, get_client
+from test_apr.search.index import INDEX_NAME
 
 pytestmark = pytest.mark.asyncio
 
@@ -91,3 +95,27 @@ async def test_import_parses_rubrics_list(tmp_path, capsys):
             assert document.rubrics == ["VK-1", "VK-2", "VK-3"]
     finally:
         await _cleanup(text)
+
+
+async def test_reindex_indexes_documents_missing_from_es(capsys):
+    text = "Строка для проверки переиндексации из базы"
+    document = Document(
+        text=text,
+        text_hash=uuid.uuid4().hex,
+        rubrics=["TEST-REINDEX"],
+        created_date=datetime(2024, 1, 1),
+    )
+    async with async_session_factory() as session:
+        session.add(document)
+        await session.commit()
+
+    try:
+        await _reindex_async()
+        assert "Indexed" in capsys.readouterr().out
+
+        es_client = get_client()
+        assert await es_client.exists(index=INDEX_NAME, id=str(document.id))
+    finally:
+        await _cleanup(text)
+        await delete_document(str(document.id))
+        await close_client()

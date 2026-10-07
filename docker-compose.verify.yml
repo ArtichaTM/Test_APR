@@ -1,0 +1,19 @@
+# Runs the whole suite, e2e checks included, inside docker for `make verify`.
+services:
+  app:
+    ports: !reset []
+
+  tests:
+    build:
+      context: .
+      target: test
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      POSTGRES_HOST: db
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      APP_URL: http://app:8000
+    depends_on:
+      app:
+        condition: service_healthy
